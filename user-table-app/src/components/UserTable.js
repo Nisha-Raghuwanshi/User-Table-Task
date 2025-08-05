@@ -9,6 +9,8 @@ const UserTable = () => {
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState('id');
   const [sortOrder, setSortOrder] = useState('asc')
+  const [searchInput, setSearchInput] = useState(''); 
+  const [debouncedValue, setDebouncedValue] = useState('');
 
 
   useEffect(() => {
@@ -25,6 +27,14 @@ const UserTable = () => {
 
     fetchUsers();
   }, []);
+
+   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(searchInput);
+    }, 300); 
+
+    return () => clearTimeout(timer); 
+  }, [searchInput]);
 
   const handleSort = (key) => {
    const order = sortBy === key && sortOrder === 'asc' ? 'desc' : 'asc';
@@ -50,10 +60,30 @@ const UserTable = () => {
     return sortOrder === 'asc' ? valA - valB : valB - valA;
   });
 
+  const filteredUsers = sortedUsers?.filter((user) => {
+    const term = debouncedValue.toLowerCase();
+    return (
+      user?.name?.toLowerCase().includes(term) ||
+      user?.id?.toString().includes(term)
+    );
+  });
+
 
   return (
     <div className="container mt-5">
       <h2 className="mb-4">User Table</h2>
+
+       <div className="mb-3">
+        <div className='col-md-3'>
+        <input
+          type="text"
+          placeholder="Search by ID or Name..."
+          className="form-control"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+        </div>
+      </div>
 
       {loading && (
         <div className="text-center">
@@ -84,7 +114,8 @@ const UserTable = () => {
             </tr>
           </thead>
           <tbody>
-            {sortedUsers.map((user) => (
+            {filteredUsers?.length > 0 ? (
+            filteredUsers?.map((user) => (
               <tr key={user.id}>
                 <td>{user.id}</td>
                 <td>{user.name}</td>
@@ -93,7 +124,15 @@ const UserTable = () => {
                 </td>
                 <td>{user.company?.name}</td>
               </tr>
-            ))}
+            ))
+          ) : (
+            <tr>
+                <td colSpan="4" className="text-center">
+                  No matching users found.
+                </td>
+              </tr>
+          )
+        }
           </tbody>
         </table>
       )}
