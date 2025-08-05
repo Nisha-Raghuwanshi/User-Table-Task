@@ -48,7 +48,7 @@ const UserTable = () => {
     return sortOrder === 'asc' ? <FaArrowUp className="ms-1" /> : <FaArrowDown className="ms-1" />;
   }
 
-   const sortedUsers = [...users].sort((a, b) => {
+   const sortedUsers = [...users]?.sort((a, b) => {
     const valA = a[sortBy];
     const valB = b[sortBy];
 
@@ -100,6 +100,7 @@ const UserTable = () => {
       )}
 
       {!loading && !error && (
+        <div className="table-responsive">
         <table className="table table-bordered table-striped">
           <thead className="table-dark">
             <tr>
@@ -116,13 +117,13 @@ const UserTable = () => {
           <tbody>
             {filteredUsers?.length > 0 ? (
             filteredUsers?.map((user) => (
-              <tr key={user.id}>
-                <td>{user.id}</td>
-                <td>{user.name}</td>
+              <tr key={user?.id}>
+                <td>{user?.id}</td>
+                <td>{user?.name}</td>
                 <td>
-                  {user.address?.city}, {user.address?.zipcode}
+                  {user?.address?.city}, {user?.address?.zipcode}
                 </td>
-                <td>{user.company?.name}</td>
+                <td>{user?.company?.name}</td>
               </tr>
             ))
           ) : (
@@ -135,6 +136,7 @@ const UserTable = () => {
         }
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );
